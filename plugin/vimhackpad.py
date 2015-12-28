@@ -41,7 +41,7 @@ def vim_hackpad(url, key, secret):
 
     session = HackpadSession(key, secret, url=url)
     pad_list = session.pad_list()
-    if pad_list.status_code != 200:
+    if not pad_list.status_code.ok:
         print(pad_list.json())
         return
 
