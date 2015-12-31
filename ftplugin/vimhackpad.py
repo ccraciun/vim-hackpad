@@ -47,7 +47,7 @@ def main():
     parsed = parse_url(url)
     netloc = parsed.netloc
 
-    cfgfile = vim.eval('g:hackpad_config_file')
+    cfgfile = vim.eval('g:hackpad_credential_file')
 
     with open(cfgfile) as f:
         config = json.load(f)
@@ -78,7 +78,7 @@ def show_pad(session, padid, fmt='md'):
         print(line)
         bufwrite(line)
 
-    vim.command('set filetype=%s' % PAD_TYPE_TO_VIM_FILETYPE[fmt])
+    vim.command('set syntax=%s' % PAD_TYPE_TO_VIM_FILETYPE[fmt])
 
 
 def show_list(session):

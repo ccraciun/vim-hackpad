@@ -6,7 +6,6 @@
 "   Version: 0.1-dev
 
 
-
 if has('python')
     command! -nargs=1 Python python <args>
 elseif has('python3')
@@ -18,6 +17,7 @@ endif
 
 execute "Python import sys"
 execute "python sys.path.append(r'" . expand("<sfile>:p:h")  . "')"
+
 
 Python << EOF
 if 'vimhackpad' not in sys.modules:
@@ -31,5 +31,4 @@ EOF
 " Load main page.
 execute "Python vimhackpad.main()"
 
-
-noremap <buffer> o :Python vimhackpad.openpad()<cr>
+"noremap <buffer> o :Python vimhackpad.openpad()<cr>

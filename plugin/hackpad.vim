@@ -11,8 +11,8 @@ filetype plugin on
 au! BufRead,BufNewFile *.hackpad set filetype=hackpad
 
 " Defaults
-if !exists("g:hackpad_config_file")
-    let g:hackpad_config_file = expand('~') . '/.hackpad.cred.json'
+if !exists("g:hackpad_credential_file")
+    let g:hackpad_credential_file = expand('~') . '/.hackpad.cred.json'
 endif
 
 function! HackPad(...)
