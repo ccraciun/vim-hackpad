@@ -5,7 +5,7 @@ import vim
 from hackpad import HackpadSession, parse_url, padid_from_path
 
 
-PAD_TYPE_TO_VIM_FILETYPE = {
+PAD_TYPE_TO_VIM_SYNTAX = {
         'html': 'html',
         'md': 'markdown',
         'txt': 'text',
@@ -78,7 +78,7 @@ def show_pad(session, padid, fmt='md'):
         print(line)
         bufwrite(line)
 
-    vim.command('set syntax=%s' % PAD_TYPE_TO_VIM_FILETYPE[fmt])
+    vim.command('set syntax=%s' % PAD_TYPE_TO_VIM_SYNTAX[fmt])
 
 
 def show_list(session):
