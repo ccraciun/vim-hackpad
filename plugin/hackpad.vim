@@ -8,7 +8,9 @@
 " We need filetype plugins
 filetype plugin on
 
-au! BufRead,BufNewFile *.hackpad set filetype=hackpad
+" TODO(cosmic): Refresh after/before almost everything, but add rate limiting.
+autocmd! InsertEnter,CursorHold,BufReadCmd hackpad://*/* call HackPadRead(expand("<amatch>"))
+autocmd! InsertLeave,BufWriteCmd hackpad://*/* call HackPadWrite(expand("<amatch>"))
 
 if has('python')
     command! -nargs=1 Python python <args>
@@ -36,16 +38,29 @@ if !exists("g:hackpad_credential_file")
     let g:hackpad_credential_file = expand('~') . '/.hackpad.cred.json'
 endif
 
+if !exists("g:hackpad_list_summary_lines")
+    let g:hackpad_list_summary_lines = 3
+endif
+
+" Open Hackpad Pad or show Hackpad Pad List by URL
 function! HackPad(...)
     if a:0 > 0
-        let g:hackpad_arg = a:1
+        let g:hackpad_url = a:1
     else
-        let g:hackpad_arg = ""
+        let g:hackpad_url = ""
     endif
-    execute "edit .hackpad"
-    normal! gg
 
-    execute "Python vimhackpad.main()"
+    execute "Python vimhackpad.load()"
+endfunction
+
+function! HackPadRead(pad_uri)
+    let g:hackpad_url = a:pad_uri
+    execute "Python vimhackpad.read()"
+endfunction
+
+function! HackPadWrite(pad_uri)
+    let g:hackpad_url = a:pad_uri
+    execute "Python vimhackpad.save()"
 endfunction
 
 command! -nargs=* Hackpad call HackPad(<q-args>)
