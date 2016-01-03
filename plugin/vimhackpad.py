@@ -65,15 +65,17 @@ def read(url=None):
     # TODO(cosmic): Need a g:hackpad_pad_format
     __setup_buffer(session, session.padid, fmt='md')
 
-    refresh_pad(session, session.padid)
+    if refresh_pad(session, session.padid):
+        vim.command('set nomodified')
 
 
 def refresh_pad(session, padid, fmt='md'):
     req = session.pad_get(padid, data_format=fmt)
-    if __handle_req_error(req): return
+    if __handle_req_error(req): return False
 
     lines = req.content.split("\n")
     vim.current.buffer[:] = lines
+    return True
 
 
 def save(url=None):
@@ -87,7 +89,8 @@ def save(url=None):
         print "Can't save pad list."
     else:
         fmt = VIM_SYNTAX_TO_PAD_TYPE[vim.eval("&syntax")]
-        save_pad(session, session.padid, fmt)
+        if save_pad(session, session.padid, fmt):
+            vim.command('set nomodified')
 
 
 def save_pad(session, padid, fmt='md'):
@@ -95,7 +98,8 @@ def save_pad(session, padid, fmt='md'):
     content = '\n'.join(b)
 
     req = session.pad_put(padid, content, data_format=fmt)
-    if __handle_req_error(req): return
+    if __handle_req_error(req): return False
+    return True
 
 
 def __get_credentials_for_url(url, cred_fname):
@@ -134,11 +138,12 @@ def __handle_req_error(req):
         try:
             json_resp = req.json()
         except ValueError:
-            print("Hackpad.vim error fetching pad: %s" % req.reason)
+            print("Hackpad.vim error talking to hackpad: html -- %s" % req.reason)
+            return req.reason
         else:
-            print("Hackpad.vim error fetching pad: %s" % json_resp['error'])
-        return True
-    return False
+            print("Hackpad.vim error talking to hackpad: json -- %s" % json_resp['error'])
+            return json_resp['error']
+    return None
 
 
 def show_list(session):
