@@ -72,8 +72,10 @@ def refresh_pad(session, padid, fmt='md'):
     req = session.pad_get(padid, data_format=fmt)
     if __handle_req_error(req): return False
 
+    pos = vim.current.window.cursor
     lines = req.content.split("\n")
     vim.current.buffer[:] = lines
+    vim.current.window.cursor = pos
     return True
 
 
@@ -116,14 +118,14 @@ def __get_credentials_for_url(url, cred_fname):
 
 def __setup_buffer(session, padid=None, fmt=None):
     bufname = 'hackpad://{}/{}'.format(session.parsed_url.netloc,
-                                              padid or '')
+                                       padid or '')
     if bufname is not vim.eval('@%'):
         vim.command('silent edit! {}'.format(bufname))
 
     if padid:
         vim.command('setlocal swapfile')
         vim.command('setlocal filetype=hackpad')
-        vim.command('silent preserve') # in case we go offline
+        vim.command('silent preserve')  # in case we go offline
     else:
         vim.command('setlocal noswapfile')
         vim.command('setlocal buftype=nofile')
