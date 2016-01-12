@@ -22,20 +22,34 @@ def parse_url(url):
 
 
 def padid_from_path(path):
-    return path.split('-')[-1]
+    return path.strip('/').split('-')[-1]
 
 
 class HackpadSession(object):
-    def __init__(self, key, secret, url='https://hackpad.com'):
+    url = None
+    parsed_url = None
+    padid = None
+    oauth_session = None
+    api_endpoint = None
+    debug = False
+
+    def __init__(self, key, secret, url='https://hackpad.com', debug=False):
+        self.debug = debug
         self.url = url
-        self.parsed = parse_url(url)
+        self.parsed_url = parse_url(url)
+        if self.parsed_url.path not in ('', '/'):
+            self.padid = padid_from_path(self.parsed_url.path)
         self.oauth_session = OAuth1Session(key, secret)
-        self.api_endpoint = "https://%s/%s" % (self.parsed.netloc, API_PATH)
+        self.api_endpoint = "https://%s/%s" % (self.parsed_url.netloc, API_PATH)
 
     def get(self, url, *args, **kwargs):
+        if self.debug or kwargs.get('debug'):
+            print('GET', url, args, kwargs)
         return self.oauth_session.get(url, *args, **kwargs)
 
     def post(self, url, *args, **kwargs):
+        if self.debug or kwargs.get('debug'):
+            print('POST', url, args, kwargs)
         return self.oauth_session.post(url, *args, **kwargs)
 
     def pad_list(self):
