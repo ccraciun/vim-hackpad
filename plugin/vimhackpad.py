@@ -45,7 +45,6 @@ def bufwrite(string, squash_repeated_empty_lines=True):
 
 def load():
     url = vim.eval("g:hackpad_url")
-    print('Loading url: {}'.format(url))
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
     key, secret = __get_credentials_for_url(url, hpad_cred_file)
 
@@ -87,6 +86,7 @@ def save(url=None):
     session = HackpadSession(key, secret, url=url)
     if not session.padid:
         print "Can't save pad list."
+        return
     else:
         fmt = VIM_SYNTAX_TO_PAD_TYPE[vim.eval("&syntax")]
         if save_pad(session, session.padid, fmt):
@@ -118,7 +118,7 @@ def __setup_buffer(session, padid=None, fmt=None):
     bufname = 'hackpad://{}/{}'.format(session.parsed_url.netloc,
                                               padid or '')
     if bufname is not vim.eval('@%'):
-        vim.command('edit! {}'.format(bufname))
+        vim.command('silent edit! {}'.format(bufname))
 
     if padid:
         vim.command('setlocal swapfile')
@@ -138,10 +138,10 @@ def __handle_req_error(req):
         try:
             json_resp = req.json()
         except ValueError:
-            print("Hackpad.vim error talking to hackpad: html -- %s" % req.reason)
+            print("Hackpad.vim error talking to hackpad: %s" % req.reason)
             return req.reason
         else:
-            print("Hackpad.vim error talking to hackpad: json -- %s" % json_resp['error'])
+            print("Hackpad.vim error talking to hackpad: %s" % json_resp['error'])
             return json_resp['error']
     return None
 
