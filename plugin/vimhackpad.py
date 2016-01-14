@@ -70,12 +70,11 @@ def read(url=None):
 
 def refresh_pad(session, padid, fmt='md'):
     req = session.pad_get(padid, data_format=fmt)
-    if __handle_req_error(req): return False
+    if __handle_req_error(req):
+        return False
 
-    pos = vim.current.window.cursor
     lines = req.content.split("\n")
     vim.current.buffer[:] = lines
-    vim.current.window.cursor = pos
     return True
 
 
@@ -100,7 +99,8 @@ def save_pad(session, padid, fmt='md'):
     content = '\n'.join(b)
 
     req = session.pad_put(padid, content, data_format=fmt)
-    if __handle_req_error(req): return False
+    if __handle_req_error(req):
+        return False
     return True
 
 
