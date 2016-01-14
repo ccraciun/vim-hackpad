@@ -9,8 +9,8 @@
 filetype plugin on
 
 " TODO(cosmic): Refresh after/before almost everything, but add rate limiting.
-autocmd! InsertEnter,CursorHold,BufReadCmd hackpad://*/* call HackPadRead(expand("<amatch>"))
-autocmd! InsertLeave,BufWriteCmd hackpad://*/* call HackPadWrite(expand("<amatch>"))
+autocmd! InsertEnter,CursorHold,BufReadCmd hackpad://*/?* call HackPadRead(expand("<amatch>"))
+autocmd! InsertLeave,BufWriteCmd hackpad://*/?* call HackPadWrite(expand("<amatch>"))
 
 if has('python')
     command! -nargs=1 Python python <args>
