@@ -8,9 +8,11 @@
 " We need filetype plugins
 filetype plugin on
 
-" TODO(cosmic): Refresh after/before almost everything, but add rate limiting.
-autocmd! InsertEnter,CursorHold,BufReadCmd hackpad://*/?* call HackPadRead(expand("<amatch>"))
-autocmd! InsertLeave,BufWriteCmd hackpad://*/?* call HackPadWrite(expand("<amatch>"))
+"autocmd! InsertEnter,CursorHold,BufReadCmd hackpad://*/?* call HackPadRead(expand("<amatch>"))
+"autocmd! InsertLeave,BufWriteCmd hackpad://*/?* call HackPadWrite(expand("<amatch>"))
+" TODO: Use hackpad/client/ios updating so we're less disruptive.
+autocmd! BufReadCmd hackpad://*/?* call HackPadRead(expand("<amatch>"))
+autocmd! BufWriteCmd hackpad://*/?* call HackPadWrite(expand("<amatch>"))
 
 if has('python')
     command! -nargs=1 Python python <args>
@@ -54,13 +56,17 @@ function! HackPad(...)
 endfunction
 
 function! HackPadRead(pad_uri)
+    let l:winview = winsaveview()
     let g:hackpad_url = a:pad_uri
     execute "Python vimhackpad.read()"
+    call winrestview(l:winview)
 endfunction
 
 function! HackPadWrite(pad_uri)
+    let l:winview = winsaveview()
     let g:hackpad_url = a:pad_uri
     execute "Python vimhackpad.save()"
+    call winrestview(l:winview)
 endfunction
 
 command! -nargs=* Hackpad call HackPad(<q-args>)
