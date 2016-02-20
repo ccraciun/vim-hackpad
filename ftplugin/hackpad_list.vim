@@ -6,4 +6,4 @@
 "   Version: 0.1-dev
 
 
-nnoremap <buffer> - :call HackPadList()<cr>
+nnoremap <buffer> O :call HackPadCreate()<cr>
