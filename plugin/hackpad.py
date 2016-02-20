@@ -104,4 +104,4 @@ class HackpadSession(object):
 
     def pad_revoke_access(self, pad_id, user):
         req_url = "%s/pad/%s/revoke-access/%s" % (self.api_endpoint, pad_id, user)
-        return self.post(req_ulr)
+        return self.post(req_url)
