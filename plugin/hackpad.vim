@@ -24,7 +24,7 @@ else
 endif
 
 execute "Python import sys"
-execute "python sys.path.append(r'" . expand("<sfile>:p:h")  . "')"
+execute "Python sys.path.append(r'" . expand("<sfile>:p:h")  . "')"
 
 Python << EOF
 if 'vimhackpad' not in sys.modules:
@@ -44,6 +44,7 @@ if !exists("g:hackpad_list_summary_lines")
     let g:hackpad_list_summary_lines = 3
 endif
 
+
 " Open Hackpad Pad or show Hackpad Pad List by URL
 function! HackPad(...)
     if a:0 > 0
@@ -51,8 +52,23 @@ function! HackPad(...)
     else
         let g:hackpad_url = ""
     endif
-
     execute "Python vimhackpad.load()"
+endfunction
+
+" Create a new hackpad
+function! HackPadCreate(...)
+    if a:0 > 0
+        let g:hackpad_url = a:1
+    endif
+    execute "Python vimhackpad.create()"
+endfunction
+
+" Show hackpad list
+function! HackPadList(...)
+    if a:0 > 0
+        let g:hackpad_url = a:1
+    endif
+    execute "Python vimhackpad.load_list()"
 endfunction
 
 function! HackPadRead(pad_uri)
@@ -70,3 +86,4 @@ function! HackPadWrite(pad_uri)
 endfunction
 
 command! -nargs=* Hackpad call HackPad(<q-args>)
+command! -nargs=* HackpadCreate call HackPadCreate(<q-args>)

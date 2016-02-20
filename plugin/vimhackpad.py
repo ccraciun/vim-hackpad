@@ -43,16 +43,36 @@ def bufwrite(string, squash_repeated_empty_lines=True):
         b.append(string)
 
 
-def load():
+def _generate_session():
     url = vim.eval("g:hackpad_url")
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
     key, secret = __get_credentials_for_url(url, hpad_cred_file)
 
-    session = HackpadSession(key, secret, url=url)
+    return HackpadSession(key, secret, url=url)
+
+
+def create():
+    session = _generate_session()
+    ret = session.pad_create("").json()
+    session.padid = ret['padId']
+
+    __setup_buffer(session, session.padid, fmt='md')
+
+    if refresh_pad(session, session.padid):
+        vim.command('set nomodified')
+
+
+def load():
+    session = _generate_session()
     if not session.padid:
         show_list(session)
     else:
         read(url)
+
+
+def load_list():
+    session = _generate_session()
+    show_list(session)
 
 
 def read(url=None):
@@ -83,7 +103,7 @@ def save(url=None):
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
     key, secret = __get_credentials_for_url(url, hpad_cred_file)
 
-    # TODO(cosmic): Here is probably where we need to fetch and see if hackpad has been changed.
+    # TODO(cosmic): Here is probably where we need to fetch and see if hackpad needs to be merged.
     session = HackpadSession(key, secret, url=url)
     if not session.padid:
         print "Can't save pad list."
@@ -158,18 +178,22 @@ def show_list(session):
     bufwrite('')
 
     req = session.pad_list()
-    if __handle_req_error(req): return
+    if __handle_req_error(req):
+        return
 
     pad_ids = req.json()
     pads = {pad_id: session.pad_get(pad_id) for pad_id in pad_ids}
     pads = {pad_id: pad_request.content for pad_id, pad_request in pads.items()}
 
+    pad_num = 0
     for pad_id, pad in pads.items():
+        pad_num += 1
         summary_stop_line = 1 + int(vim.eval("g:hackpad_list_summary_lines"))
         lines = filter(lambda line: line, pad.split('\n'))
         summary = islice(chain(lines, repeat('')), 1, summary_stop_line)
 
-        bufwrite('[{}](hackpad://{}/{})'.format(lines[0], session.parsed_url.netloc, pad_id))
+        bufwrite('{}. [{}](hackpad://{}/{})'.format(
+                pad_num, lines[0], session.parsed_url.netloc, pad_id))
         for line in summary:
             bufwrite(line)
         bufwrite('')
