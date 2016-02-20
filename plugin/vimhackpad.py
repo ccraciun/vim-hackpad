@@ -46,7 +46,7 @@ def bufwrite(string, squash_repeated_empty_lines=True):
 def _generate_session():
     url = vim.eval("g:hackpad_url")
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
-    key, secret = __get_credentials_for_url(url, hpad_cred_file)
+    url, key, secret = __get_credentials(hpad_cred_file, url)
 
     return HackpadSession(key, secret, url=url)
 
@@ -67,7 +67,12 @@ def load():
     if not session.padid:
         show_list(session)
     else:
-        read(url)
+        read(session.url)
+
+
+def load_list():
+    session = _generate_session()
+    show_list(session)
 
 
 def load_list():
@@ -78,7 +83,7 @@ def load_list():
 def read(url=None):
     url = url or vim.eval("@%")
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
-    key, secret = __get_credentials_for_url(url, hpad_cred_file)
+    url, key, secret = __get_credentials(hpad_cred_file, url)
 
     session = HackpadSession(key, secret, url=url)
     # TODO(cosmic): Need a g:hackpad_pad_format
@@ -101,7 +106,7 @@ def refresh_pad(session, padid, fmt='md'):
 def save(url=None):
     url = url or vim.eval("@%")
     hpad_cred_file = vim.eval("g:hackpad_credential_file")
-    key, secret = __get_credentials_for_url(url, hpad_cred_file)
+    _, key, secret = __get_credentials(hpad_cred_file, url)
 
     # TODO(cosmic): Here is probably where we need to fetch and see if hackpad needs to be merged.
     session = HackpadSession(key, secret, url=url)
@@ -124,16 +129,18 @@ def save_pad(session, padid, fmt='md'):
     return True
 
 
-def __get_credentials_for_url(url, cred_fname):
-    parsed = parse_url(url)
-    netloc = parsed.netloc
-
+def __get_credentials(cred_fname, url=None):
     with open(cred_fname) as f:
         config = json.load(f)
-        key = config[netloc]['key']
-        secret = config[netloc]['secret']
+        if url:
+            parsed = parse_url(url)
+            netloc = parsed.netloc
 
-        return key, secret
+            c = config[netloc]
+        else:
+            c = next(islice(filter(lambda x: x['default'], config.values()), 0, 1))
+
+        return (url or c['url']), c['key'], c['secret']
 
 
 def __setup_buffer(session, padid=None, fmt=None):
@@ -173,7 +180,7 @@ def show_list(session):
     vim.command('%d')
 
     bufwrite(' ┌───┐')
-    bufwrite(' │ H │ a c k p a d (' + session.url + ')')
+    bufwrite(' │ H │ a c k p a d ({})'.format(session.url))
     bufwrite(' └───┘')
     bufwrite('')
 

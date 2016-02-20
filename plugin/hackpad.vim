@@ -13,6 +13,7 @@ filetype plugin on
 " TODO: Use hackpad/client/ios updating so we're less disruptive.
 autocmd! BufReadCmd hackpad://*/?* call HackPadRead(expand("<amatch>"))
 autocmd! BufWriteCmd hackpad://*/?* call HackPadWrite(expand("<amatch>"))
+autocmd! BufReadCmd hackpad://*/ call HackPadList(expand("<amatch>"))
 
 if has('python')
     command! -nargs=1 Python python <args>
