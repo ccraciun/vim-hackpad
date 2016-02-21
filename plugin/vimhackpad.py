@@ -53,7 +53,7 @@ def _generate_session():
 
 def create():
     session = _generate_session()
-    ret = session.pad_create("").json()
+    ret = session.pad_create("# New Pad\n").json()
     session.padid = ret['padId']
 
     __setup_buffer(session, session.padid, fmt='md')
@@ -68,11 +68,6 @@ def load():
         show_list(session)
     else:
         read(session.url)
-
-
-def load_list():
-    session = _generate_session()
-    show_list(session)
 
 
 def load_list():
